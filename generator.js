@@ -156,4 +156,56 @@ function findValidInitialState (solution, size) {
 
 }
 
-module.exports = { createPuzzle }
+function solvePuzzle (puzzle, gridSize) {
+  let count = 0
+
+  let nextEmptyTile = 0
+  while (nextEmptyTile < puzzle.length) {
+    if (puzzle[nextEmptyTile] === null) {
+      break
+    }
+    nextEmptyTile++
+  }
+
+  if (nextEmptyTile === puzzle.length) {
+    count++
+  } else {
+    possibleValues = getPossibleValues(puzzle, gridSize, nextEmptyTile)
+    if (possibleValues.length > 0) {
+      for (let value of possibleValues) {
+        puzzle[nextEmptyTile] = value
+        count += solvePuzzle(puzzle, gridSize)
+      }
+      puzzle[nextEmptyTile] = null
+    }
+  }
+
+  return count
+}
+
+module.exports = { generateValidGrid }
+
+
+size = 4
+puzzle = [
+  1, null, 0, 0, 
+  1, 0, 1, 0,
+  0, null, null, 1,
+  0, null, null, 1
+]
+
+s = ''
+for (let i = 0; i < size; i++) {
+  for (let j = 0; j < size; j++) {
+      e = puzzle[j + i * size]
+      if (e !== null) {
+        s += e + ' '
+      } else {
+        s += '  '
+      }
+  }
+  s += '\n'
+}
+
+console.log(s)
+console.log(solvePuzzle(puzzle, size))
