@@ -153,7 +153,32 @@ function shuffle (values) {
 }
 
 function findValidInitialState (solution, size) {
+  solution = solution.slice()
 
+  let visibleSlots = new Array(solution.length)
+  for (let i = 0; i < visibleSlots.length; i++) {
+    visibleSlots[i] = i
+  }
+
+  while (true) {
+    let ttrIndex = Math.floor(Math.random() * visibleSlots.length)
+    let tileToRemove = visibleSlots[ttrIndex]
+    
+    let removedValue = solution[tileToRemove]
+    
+    solution[tileToRemove] = null
+    possibleSolutions = solvePuzzle(solution, size)
+
+    if (possibleSolutions > 1) {
+      solution[tileToRemove] = removedValue
+      break
+    }
+
+    visibleSlots[ttrIndex] = visibleSlots[visibleSlots.length - 1]
+    visibleSlots.pop()
+  }
+
+  return solution
 }
 
 function solvePuzzle (puzzle, gridSize) {
@@ -176,8 +201,9 @@ function solvePuzzle (puzzle, gridSize) {
         puzzle[nextEmptyTile] = value
         count += solvePuzzle(puzzle, gridSize)
       }
-      puzzle[nextEmptyTile] = null
     }
+    // reset to null because possible values will change the value
+    puzzle[nextEmptyTile] = null
   }
 
   return count
@@ -186,26 +212,31 @@ function solvePuzzle (puzzle, gridSize) {
 module.exports = { generateValidGrid }
 
 
-size = 4
-puzzle = [
-  1, null, 0, 0, 
-  1, 0, 1, 0,
-  0, null, null, 1,
-  0, null, null, 1
-]
+size = 8
+puzzle = createPuzzle(size)
+
+is = ''
+for (let i = 0; i < size; i++) {
+  for (let j = 0; j < size; j++) {
+    var e = puzzle.initialState[j + i * size]
+    if (e === null) {
+      is += '  '
+    } else {
+      is += e + ' '
+    }
+  }
+  is += '\n'
+}
+console.log(is)
+
+console.log('----------------------------------------------')
 
 s = ''
 for (let i = 0; i < size; i++) {
   for (let j = 0; j < size; j++) {
-      e = puzzle[j + i * size]
-      if (e !== null) {
-        s += e + ' '
-      } else {
-        s += '  '
-      }
+      s += puzzle.solution[j + i * size] + ' '
   }
   s += '\n'
 }
 
 console.log(s)
-console.log(solvePuzzle(puzzle, size))
