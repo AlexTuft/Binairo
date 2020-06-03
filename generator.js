@@ -160,7 +160,7 @@ function findValidInitialState (solution, size) {
     visibleSlots[i] = i
   }
 
-  while (true) {
+  while (visibleSlots.length > 0) {
     let ttrIndex = Math.floor(Math.random() * visibleSlots.length)
     let tileToRemove = visibleSlots[ttrIndex]
     
@@ -171,7 +171,6 @@ function findValidInitialState (solution, size) {
 
     if (possibleSolutions > 1) {
       solution[tileToRemove] = removedValue
-      break
     }
 
     visibleSlots[ttrIndex] = visibleSlots[visibleSlots.length - 1]
