@@ -75,25 +75,34 @@ function getPossibleValues (puzzle, size, i) {
 function canPlace (puzzle, size, tileIndex, value) {
   puzzle[tileIndex] = value // modify now to see if it would cause invalid state
 
-  return isChangeValid(getRows(puzzle, size), size, Math.floor(tileIndex / size), value)
-    && isChangeValid(getColumns(puzzle, size), size, tileIndex % size, value)
+  return isChangeValid(getRows(puzzle, size), Math.floor(tileIndex / size), value)
+    && isChangeValid(getColumns(puzzle, size), tileIndex % size, value)
 }
 
-function isChangeValid (rowsOrCols, size, changedRowOrColIndex, newValue) {
+function isChangeValid (rowsOrCols, changedRowOrColIndex, newValue) {
   let line = rowsOrCols[changedRowOrColIndex]
 
-  const maxAmountOfEachValue = size / 2
-  let newValueCount = line.count(newValue)
-  if (newValueCount > maxAmountOfEachValue) {
-    return false
-  }
+  return newValueDoesNotOccurrTooManyTimes(line, newValue)
+    && allLinesAreUnique(rowsOrCols, changedRowOrColIndex)
+    && newValueDoesNotOccurrToManyTimesConsecutively(line, newValue)
+}
 
-  for (let i = 0; i < rowsOrCols.length; i++) {
-    if (i !== changedRowOrColIndex && line.isEqualTo(rowsOrCols[i])) {
+function newValueDoesNotOccurrTooManyTimes(line, newValue) {
+  const maxAmountOfEachValue = line.length / 2
+  let newValueCount = line.count(newValue)
+  return newValueCount <= maxAmountOfEachValue
+}
+
+function allLinesAreUnique (lines, changedLineIndex) {
+  for (let i = 0; i < lines.length; i++) {
+    if (i !== changedLineIndex && lines[changedLineIndex].isEqualTo(lines[i])) {
       return false
     }
   }
+  return true
+}
 
+function newValueDoesNotOccurrToManyTimesConsecutively(line, newValue) {
   var consecutiveValueCount = 0
   for (let i = 0; i < line.length; i++) {
     if (line[i] === newValue) {
