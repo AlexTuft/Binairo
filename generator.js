@@ -38,7 +38,6 @@ function generateValidPuzzle (size) {
 function fillPuzzle (puzzle, size, i=0) {
   possibleValues = getPossibleValues(puzzle, size, i)
   if (possibleValues.length === 0) {
-    puzzle[i] = null
     return false
   }
 
@@ -57,8 +56,9 @@ function fillPuzzle (puzzle, size, i=0) {
     }
   }
 
+  // No valid puzzle from this point in the reccursion
   puzzle[i] = null
-  return false // we couldn't find a valid solution from this point
+  return false
 }
 
 function getPossibleValues (puzzle, size, i) {
@@ -75,8 +75,12 @@ function getPossibleValues (puzzle, size, i) {
 function canPlace (puzzle, size, tileIndex, value) {
   puzzle[tileIndex] = value // modify now to see if it would cause invalid state
 
-  return isChangeValid(getRows(puzzle, size), Math.floor(tileIndex / size), value)
+  let canPlace = isChangeValid(getRows(puzzle, size), Math.floor(tileIndex / size), value)
     && isChangeValid(getColumns(puzzle, size), tileIndex % size, value)
+
+  puzzle[tileIndex] = null
+  
+  return canPlace
 }
 
 function isChangeValid (rowsOrCols, changedRowOrColIndex, newValue) {
@@ -204,7 +208,6 @@ function countPossibleSolutions (puzzle, size) {
         count += countPossibleSolutions(puzzle, size)
       }
     }
-    // reset to null because possible values will change the value
     puzzle[nextEmptyTile] = null
   }
 
@@ -227,7 +230,6 @@ function canSolvePuzzle (puzzle, size) {
       
       // assume that each tile will have at least one possible value at this point
       possibleValues = getPossibleValues(puzzle, size, i)
-      puzzle[i] = null
       if (possibleValues.length === 1) {
         puzzle[i] = possibleValues[0]
         foundNextMove = true
