@@ -169,7 +169,7 @@ function findValidInitialState (solution, size) {
     solution[tileToRemove] = null
     possibleSolutions = solvePuzzle(solution, size)
 
-    if (possibleSolutions > 1) {
+    if (possibleSolutions > 1 || !canSolvePuzzle(solution, size)) {
       solution[tileToRemove] = removedValue
     }
 
@@ -206,6 +206,38 @@ function solvePuzzle (puzzle, gridSize) {
   }
 
   return count
+}
+
+function canSolvePuzzle (puzzle, puzzleSize) {
+  puzzle = puzzle.slice()
+
+  let solved = false
+  while (!solved) {
+    solved = true // we will disprove this if we find an empty tile
+    let foundNextMove = false
+
+    for (let i = 0; i < puzzle.length; i++) {
+      if (puzzle[i] !== null) {
+        continue
+      }
+      solved = false
+      
+      // assume that each tile will have at least one possible value at this point
+      possibleValues = getPossibleValues(puzzle, puzzleSize, i)
+      puzzle[i] = null
+      if (possibleValues.length === 1) {
+        puzzle[i] = possibleValues[0]
+        foundNextMove = true
+        break
+      }
+    }
+
+    if (!solved && !foundNextMove) {
+      return false
+    }
+  }
+
+  return true
 }
 
 module.exports = { generateValidGrid }
