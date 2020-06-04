@@ -1,6 +1,6 @@
 Array.prototype.count = function (value) {
-  var valueCount = 0
-  for (var i = 0; i < this.length; i++) {
+  let valueCount = 0
+  for (let i = 0; i < this.length; i++) {
     if (value === this[i]) {
       valueCount++
     }
@@ -12,10 +12,10 @@ Array.prototype.isEqualTo = function (other) {
   if (other === null || !Array.isArray(other)) {
     return false
   }
-    if (this.length !== other.length) {
+  if (this.length !== other.length) {
     return false
   }
-  for (var i = 0; i < this.length; i++) {
+  for (let i = 0; i < this.length; i++) {
     if (this[i] !== other[i] || (this[i] === null && other[i] === null)) {
       return false
     }
@@ -24,19 +24,19 @@ Array.prototype.isEqualTo = function (other) {
 }
 
 function createPuzzle (size) {
-  solution = generateValidPuzzle(size)
-  initialState = findValidInitialState(solution, size)
+  const solution = generateValidPuzzle(size)
+  const initialState = findValidInitialState(solution, size)
   return { size, solution, initialState }
 }
-``
+
 function generateValidPuzzle (size) {
-  let puzzle = new Array(size * size).fill(null)
+  const puzzle = new Array(size * size).fill(null)
   fillPuzzle(puzzle, size)
   return puzzle
 }
 
-function fillPuzzle (puzzle, size, i=0) {
-  possibleValues = getPossibleValues(puzzle, size, i)
+function fillPuzzle (puzzle, size, i = 0) {
+  let possibleValues = getPossibleValues(puzzle, size, i)
   if (possibleValues.length === 0) {
     return false
   }
@@ -47,10 +47,10 @@ function fillPuzzle (puzzle, size, i=0) {
     return true
   }
 
-  for (let value of possibleValues) {
+  for (const value of possibleValues) {
     puzzle[i] = value
-  
-    solutionFound = fillPuzzle(puzzle, size, i + 1)
+
+    const solutionFound = fillPuzzle(puzzle, size, i + 1)
     if (solutionFound) {
       return true
     }
@@ -62,7 +62,7 @@ function fillPuzzle (puzzle, size, i=0) {
 }
 
 function getPossibleValues (puzzle, size, i) {
-  values = []
+  const values = []
   if (canPlace(puzzle, size, i, 0)) {
     values.push(0)
   }
@@ -75,25 +75,25 @@ function getPossibleValues (puzzle, size, i) {
 function canPlace (puzzle, size, tileIndex, value) {
   puzzle[tileIndex] = value // modify now to see if it would cause invalid state
 
-  let canPlace = isChangeValid(getRows(puzzle, size), Math.floor(tileIndex / size), value)
+  const canPlace = isChangeValid(getRows(puzzle, size), Math.floor(tileIndex / size), value)
     && isChangeValid(getColumns(puzzle, size), tileIndex % size, value)
 
   puzzle[tileIndex] = null
-  
+
   return canPlace
 }
 
 function isChangeValid (rowsOrCols, changedRowOrColIndex, newValue) {
-  let line = rowsOrCols[changedRowOrColIndex]
+  const line = rowsOrCols[changedRowOrColIndex]
 
   return newValueDoesNotOccurrTooManyTimes(line, newValue)
     && allLinesAreUnique(rowsOrCols, changedRowOrColIndex)
     && newValueDoesNotOccurrToManyTimesConsecutively(line, newValue)
 }
 
-function newValueDoesNotOccurrTooManyTimes(line, newValue) {
+function newValueDoesNotOccurrTooManyTimes (line, newValue) {
   const maxAmountOfEachValue = line.length / 2
-  let newValueCount = line.count(newValue)
+  const newValueCount = line.count(newValue)
   return newValueCount <= maxAmountOfEachValue
 }
 
@@ -106,8 +106,8 @@ function allLinesAreUnique (lines, changedLineIndex) {
   return true
 }
 
-function newValueDoesNotOccurrToManyTimesConsecutively(line, newValue) {
-  var consecutiveValueCount = 0
+function newValueDoesNotOccurrToManyTimesConsecutively (line, newValue) {
+  let consecutiveValueCount = 0
   for (let i = 0; i < line.length; i++) {
     if (line[i] === newValue) {
       consecutiveValueCount++
@@ -123,7 +123,7 @@ function newValueDoesNotOccurrToManyTimesConsecutively(line, newValue) {
 }
 
 function getRows (puzzle, size) {
-  rows = []
+  const rows = []
   for (let i = 0; i < size; i++) {
     rows.push(getRow(puzzle, size, i))
   }
@@ -137,7 +137,7 @@ function getRow (puzzle, size, rowIndex) {
 }
 
 function getColumns (puzzle, size) {
-  columns = []
+  const columns = []
   for (let i = 0; i < size; i++) {
     columns.push(getColumn(puzzle, size, i))
   }
@@ -145,7 +145,7 @@ function getColumns (puzzle, size) {
 }
 
 function getColumn (puzzle, size, columnIndex) {
-  column = []
+  const column = []
   for (let i = 0; i < size; i++) {
     column.push(puzzle[size * i + columnIndex])
   }
@@ -162,19 +162,19 @@ function shuffle (values) {
 function findValidInitialState (solution, size) {
   solution = solution.slice()
 
-  let visibleTiles = new Array(solution.length)
+  const visibleTiles = new Array(solution.length)
   for (let i = 0; i < visibleTiles.length; i++) {
     visibleTiles[i] = i
   }
 
   while (visibleTiles.length > 0) {
-    let ttrIndex = Math.floor(Math.random() * visibleTiles.length)
-    let tileToRemove = visibleTiles[ttrIndex]
-    
-    let removedValue = solution[tileToRemove]
-    
+    const ttrIndex = Math.floor(Math.random() * visibleTiles.length)
+    const tileToRemove = visibleTiles[ttrIndex]
+
+    const removedValue = solution[tileToRemove]
+
     solution[tileToRemove] = null
-    possibleSolutions = countPossibleSolutions(solution, size)
+    const possibleSolutions = countPossibleSolutions(solution, size)
 
     if (possibleSolutions > 1 || !canSolvePuzzle(solution, size)) {
       solution[tileToRemove] = removedValue
@@ -201,9 +201,9 @@ function countPossibleSolutions (puzzle, size) {
   if (nextEmptyTile === puzzle.length) {
     count++
   } else {
-    possibleValues = getPossibleValues(puzzle, size, nextEmptyTile)
+    const possibleValues = getPossibleValues(puzzle, size, nextEmptyTile)
     if (possibleValues.length > 0) {
-      for (let value of possibleValues) {
+      for (const value of possibleValues) {
         puzzle[nextEmptyTile] = value
         count += countPossibleSolutions(puzzle, size)
       }
@@ -227,9 +227,9 @@ function canSolvePuzzle (puzzle, size) {
         continue
       }
       solved = false
-      
+
       // assume that each tile will have at least one possible value at this point
-      possibleValues = getPossibleValues(puzzle, size, i)
+      const possibleValues = getPossibleValues(puzzle, size, i)
       if (possibleValues.length === 1) {
         puzzle[i] = possibleValues[0]
         foundNextMove = true
