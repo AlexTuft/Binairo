@@ -245,34 +245,4 @@ function canSolvePuzzle (puzzle, size) {
   return true
 }
 
-module.exports = { generateValidpuzzle: generateValidPuzzle }
-
-
-size = 8
-puzzle = createPuzzle(size)
-
-is = ''
-for (let i = 0; i < size; i++) {
-  for (let j = 0; j < size; j++) {
-    var e = puzzle.initialState[j + i * size]
-    if (e === null) {
-      is += ' ,'
-    } else {
-      is += e + ','
-    }
-  }
-  is += '\n'
-}
-console.log(is)
-
-console.log('----------------------------------------------')
-
-s = ''
-for (let i = 0; i < size; i++) {
-  for (let j = 0; j < size; j++) {
-      s += puzzle.solution[j + i * size] + ' '
-  }
-  s += '\n'
-}
-
-console.log(s)
+module.exports = { createPuzzle }
