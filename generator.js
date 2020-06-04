@@ -24,90 +24,84 @@ Array.prototype.isEqualTo = function (other) {
 }
 
 function createPuzzle (size) {
-  solution = generateValidGrid(size)
+  solution = generateValidPuzzle(size)
   initialState = findValidInitialState(solution, size)
   return { size, solution, initialState }
 }
-
-function generateValidGrid (size) {
-  grid = new Array(size * size).fill(null)
-  fillGrid(grid, size)
-  return grid
+``
+function generateValidPuzzle (size) {
+  let puzzle = new Array(size * size).fill(null)
+  fillPuzzle(puzzle, size)
+  return puzzle
 }
 
-function fillGrid (grid, gridSize, i=0) {
-  possibleValues = getPossibleValues(grid, gridSize, i)
+function fillPuzzle (puzzle, size, i=0) {
+  possibleValues = getPossibleValues(puzzle, size, i)
   if (possibleValues.length === 0) {
-    grid[i] = null
+    puzzle[i] = null
     return false
   }
 
   possibleValues = shuffle(possibleValues)
-  if (i === grid.length - 1) {
-    grid[i] = possibleValues[0] // if it is the last element in the grid, just pick the first and return, it will be a complete solution
+  if (i === puzzle.length - 1) {
+    puzzle[i] = possibleValues[0] // if it is the last element in the puzzle, just pick the first and return, it will be a complete solution
     return true
   }
 
   for (let value of possibleValues) {
-    grid[i] = value
+    puzzle[i] = value
   
-    solutionFound = fillGrid(grid, gridSize, i + 1)
+    solutionFound = fillPuzzle(puzzle, size, i + 1)
     if (solutionFound) {
       return true
     }
   }
 
-  grid[i] = null
+  puzzle[i] = null
   return false // we couldn't find a valid solution from this point
 }
 
 function getPossibleValues (puzzle, size, i) {
   values = []
-  if (canPlaceZero(puzzle, size, i)) {
+  if (canPlace(puzzle, size, i, 0)) {
     values.push(0)
   }
-  if (canPlaceOne(puzzle, size, i)) {
+  if (canPlace(puzzle, size, i, 1)) {
     values.push(1)
   }
   return values
 }
 
-function canPlaceZero (puzzle, size, tileIndex) {
-  puzzle[tileIndex] = 0 // modify now to see if it would cause invalid state
+function canPlace (puzzle, size, tileIndex, value) {
+  puzzle[tileIndex] = value // modify now to see if it would cause invalid state
 
-  return isValid(getRows(puzzle, size), size, Math.floor(tileIndex / size), 0)
-    && isValid(getColumns(puzzle, size), size, tileIndex % size, 0)
+  return isChangeValid(getRows(puzzle, size), size, Math.floor(tileIndex / size), value)
+    && isChangeValid(getColumns(puzzle, size), size, tileIndex % size, value)
 }
 
-function canPlaceOne (puzzle, size, tileIndex) {
-  puzzle[tileIndex] = 1 // modify now to see if it would cause invalid state
+function isChangeValid (rowsOrCols, size, changedRowOrColIndex, newValue) {
+  let line = rowsOrCols[changedRowOrColIndex]
 
-  return isValid(getRows(puzzle, size), size, Math.floor(tileIndex / size), 1)
-    && isValid(getColumns(puzzle, size), size, tileIndex % size, 1)
-}
-
-function isValid (lines, size, lineIndex, v) {
-  line = lines[lineIndex]
-
-  zeroCount = line.count(v)
-  if (zeroCount > size / 2) {
+  const maxAmountOfEachValue = size / 2
+  let newValueCount = line.count(newValue)
+  if (newValueCount > maxAmountOfEachValue) {
     return false
   }
 
-  for (let i = 0; i < lines.length; i++) {
-    if (i !== lineIndex && line.isEqualTo(lines[i])) {
+  for (let i = 0; i < rowsOrCols.length; i++) {
+    if (i !== changedRowOrColIndex && line.isEqualTo(rowsOrCols[i])) {
       return false
     }
   }
 
-  var count = 0
+  var consecutiveValueCount = 0
   for (let i = 0; i < line.length; i++) {
-    if (line[i] === v) {
-      count++
+    if (line[i] === newValue) {
+      consecutiveValueCount++
     } else {
-      count = 0
+      consecutiveValueCount = 0
     }
-    if (count === 3) {
+    if (consecutiveValueCount === 3) {
       return false
     }
   }
@@ -155,32 +149,32 @@ function shuffle (values) {
 function findValidInitialState (solution, size) {
   solution = solution.slice()
 
-  let visibleSlots = new Array(solution.length)
-  for (let i = 0; i < visibleSlots.length; i++) {
-    visibleSlots[i] = i
+  let visibleTiles = new Array(solution.length)
+  for (let i = 0; i < visibleTiles.length; i++) {
+    visibleTiles[i] = i
   }
 
-  while (visibleSlots.length > 0) {
-    let ttrIndex = Math.floor(Math.random() * visibleSlots.length)
-    let tileToRemove = visibleSlots[ttrIndex]
+  while (visibleTiles.length > 0) {
+    let ttrIndex = Math.floor(Math.random() * visibleTiles.length)
+    let tileToRemove = visibleTiles[ttrIndex]
     
     let removedValue = solution[tileToRemove]
     
     solution[tileToRemove] = null
-    possibleSolutions = solvePuzzle(solution, size)
+    possibleSolutions = countPossibleSolutions(solution, size)
 
     if (possibleSolutions > 1 || !canSolvePuzzle(solution, size)) {
       solution[tileToRemove] = removedValue
     }
 
-    visibleSlots[ttrIndex] = visibleSlots[visibleSlots.length - 1]
-    visibleSlots.pop()
+    visibleTiles[ttrIndex] = visibleTiles[visibleTiles.length - 1]
+    visibleTiles.pop()
   }
 
   return solution
 }
 
-function solvePuzzle (puzzle, gridSize) {
+function countPossibleSolutions (puzzle, size) {
   let count = 0
 
   let nextEmptyTile = 0
@@ -194,11 +188,11 @@ function solvePuzzle (puzzle, gridSize) {
   if (nextEmptyTile === puzzle.length) {
     count++
   } else {
-    possibleValues = getPossibleValues(puzzle, gridSize, nextEmptyTile)
+    possibleValues = getPossibleValues(puzzle, size, nextEmptyTile)
     if (possibleValues.length > 0) {
       for (let value of possibleValues) {
         puzzle[nextEmptyTile] = value
-        count += solvePuzzle(puzzle, gridSize)
+        count += countPossibleSolutions(puzzle, size)
       }
     }
     // reset to null because possible values will change the value
@@ -208,7 +202,7 @@ function solvePuzzle (puzzle, gridSize) {
   return count
 }
 
-function canSolvePuzzle (puzzle, puzzleSize) {
+function canSolvePuzzle (puzzle, size) {
   puzzle = puzzle.slice()
 
   let solved = false
@@ -223,7 +217,7 @@ function canSolvePuzzle (puzzle, puzzleSize) {
       solved = false
       
       // assume that each tile will have at least one possible value at this point
-      possibleValues = getPossibleValues(puzzle, puzzleSize, i)
+      possibleValues = getPossibleValues(puzzle, size, i)
       puzzle[i] = null
       if (possibleValues.length === 1) {
         puzzle[i] = possibleValues[0]
@@ -240,7 +234,7 @@ function canSolvePuzzle (puzzle, puzzleSize) {
   return true
 }
 
-module.exports = { generateValidGrid }
+module.exports = { generateValidpuzzle: generateValidPuzzle }
 
 
 size = 8
@@ -251,9 +245,9 @@ for (let i = 0; i < size; i++) {
   for (let j = 0; j < size; j++) {
     var e = puzzle.initialState[j + i * size]
     if (e === null) {
-      is += '  '
+      is += ' ,'
     } else {
-      is += e + ' '
+      is += e + ','
     }
   }
   is += '\n'
