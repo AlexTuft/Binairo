@@ -41,6 +41,13 @@ function lintJs () {
     .pipe(eslint.failAfterError())
 }
 
+function buildJs () {
+  return gulp.src(entryScript)
+    .pipe(webpack({ ...webpackConfig, mode: 'development' }))
+    .pipe(babel(babelConfig))
+    .pipe(gulp.dest(outputDir))
+}
+
 function buildReleaseJs () {
   return gulp.src(entryScript)
     .pipe(webpack({ ...webpackConfig, mode: 'production' }))
@@ -70,6 +77,11 @@ function buildReleaseCss () {
     ]))
     .pipe(gulp.dest(outputDir))
 }
+
+exports.build = gulp.series(clean, gulp.parallel(
+  copyHtml,
+  gulp.series(lintJs, buildJs),
+  gulp.series(lintCss, buildReleaseCss)))
 
 exports.release = gulp.series(clean, gulp.parallel(
   copyHtml,
