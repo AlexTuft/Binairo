@@ -18,7 +18,7 @@ class IdleStateController {
   onTileClicked (index) {
     if (this.model.canChangeTile(index)) {
       this.model.switchTile(index)
-      this.view.drawBoardToView(this.model)
+      this.view.updateTile(this.model, index)
     }
   }
 }
@@ -56,12 +56,19 @@ class IdleStateView {
 
   drawBoardToView (model) {
     for (let i = 0; i < model.puzzle.size * model.puzzle.size; i++) {
-      this.gameTileViews[i].classList = ['tile-click-area'] // reset to default state
-      if (model.board[i] === 0) {
-        this.gameTileViews[i].classList.add('z')
-      } else if (model.board[i] === 1) {
-        this.gameTileViews[i].classList.add('o')
-      }
+      this.updateTile(model, i)
+    }
+  }
+
+  updateTile (model, tileIndex) {
+    const tileView = this.gameTileViews[tileIndex]
+    const tile = model.board[tileIndex]
+
+    tileView.classList = ['tile-click-area'] // reset to default state
+    if (tile === 0) {
+      tileView.classList.add('z')
+    } else if (tile === 1) {
+      tileView.classList.add('o')
     }
   }
 }
