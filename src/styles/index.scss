@@ -12,6 +12,12 @@ body {
   max-width: 512px;
 }
 
+.message-area {
+  font-size: 1.5em;
+  height: 3em;
+  text-align: center;
+}
+
 .game-board {
   // If you put padding on this element it may break the JS
   display: grid;

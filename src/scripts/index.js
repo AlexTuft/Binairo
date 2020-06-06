@@ -1,7 +1,5 @@
 const { createPuzzle } = require('./generator')
 
-var state = null
-
 class IdleStateController {
   constructor () {
     this.model = new IdleStateModel()
@@ -15,10 +13,18 @@ class IdleStateController {
     }
   }
 
+  tearDown () {
+    this.view.gameBoardView.onclick = null
+  }
+
   onTileClicked (index) {
     if (this.model.canChangeTile(index)) {
       this.model.switchTile(index)
       this.view.updateTile(this.model, index)
+
+      if (this.model.isSolved()) {
+        transitionToState(new FinishedStateController())
+      }
     }
   }
 }
@@ -41,6 +47,10 @@ class IdleStateModel {
     } else if (this.board[index] === 1) {
       this.board[index] = null
     }
+  }
+
+  isSolved () {
+    return this.board.isEqualTo(this.puzzle.solution)
   }
 }
 
@@ -82,6 +92,30 @@ class IdleStateView {
   }
 }
 
+class FinishedStateController {
+  constructor () {
+    this.view = new FinishedStateView()
+  }
+
+  setUp () {
+    this.view.setUp()
+  }
+}
+
+class FinishedStateView {
+  constructor () {
+    this.messageView = document.getElementById('message')
+  }
+
+  setUp () {
+    this.messageView.innerText = 'Well done!'
+  }
+
+  tearDown () {
+    this.messageView.innerText = ''
+  }
+}
+
 function onGameBoardClicked (event, boardSize, onTileClicked) {
   const tileWidth = Math.floor(event.currentTarget.clientWidth / boardSize)
   const tileHeight = Math.floor(event.currentTarget.clientHeight / boardSize)
@@ -96,7 +130,14 @@ function onGameBoardClicked (event, boardSize, onTileClicked) {
   onTileClicked(tileIndex)
 }
 
+function transitionToState (state) {
+  if (window.state !== undefined && typeof window.state.tearDown === 'function') {
+    window.state.tearDown()
+  }
+  window.state = state
+  window.state.setUp()
+}
+
 document.addEventListener('DOMContentLoaded', function () {
-  state = new IdleStateController()
-  state.setUp()
+  transitionToState(new IdleStateController())
 })
