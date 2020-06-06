@@ -16,6 +16,7 @@ body {
   // If you put padding on this element it may break the JS
   display: grid;
   grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
   height: 512px;
   margin: 0 auto;
   user-select: none;
