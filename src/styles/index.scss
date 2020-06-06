@@ -29,6 +29,17 @@ body {
     border: 1px solid #fff;
   }
 
+  &.initial .tile::after {
+    background: #222;
+    border-radius: 100%;
+    content: ' ';
+    display: block;
+    height: 30%;
+    margin: 35%;
+    opacity: .3;
+    width: 30%;
+  }
+
   .tile {
     background: #1a1a1a;
     border: 1px solid transparent;
