@@ -1,35 +1,119 @@
 const { createPuzzle } = require('./generator')
 
+var gameData = {}
+var state = null
+
 class IdleStateController {
   constructor () {
-    this.model = new IdleStateModel()
-    this.view = new IdleStateView()
+    this.gameBoardModel = new GameBoardModel()
+    this.gameBoardView = new GameBoardView()
   }
 
   setUp () {
-    this.view.setUp(this.model)
-    this.view.gameBoardView.onclick = event => {
-      onGameBoardClicked(event, this.model.puzzle.size, (i) => this.onTileClicked(i))
+    this.gameBoardView.setUp(this.gameBoardModel)
+    this.gameBoardView.gameBoardView.onclick = event => {
+      onGameBoardClicked(event, this.gameBoardModel.puzzle.size, (i) => this.onTileClicked(i))
     }
   }
 
   tearDown () {
-    this.view.gameBoardView.onclick = null
+    this.gameBoardView.gameBoardView.onclick = null
   }
 
   onTileClicked (index) {
-    if (this.model.canChangeTile(index)) {
-      this.model.switchTile(index)
-      this.view.updateTile(this.model, index)
+    if (this.gameBoardModel.canChangeTile(index)) {
+      const playingState = new PlayingStateController(this.gameBoardModel, this.gameBoardView)
+      transitionToState(playingState)
+      playingState.onTileClicked(index)
+    }
+  }
+}
 
-      if (this.model.isSolved()) {
-        transitionToState(new FinishedStateController())
+class PlayingStateController {
+  constructor (gameBoardModel, gameBoardView) {
+    this.model = new PlayingStateModel(gameBoardModel)
+    this.view = new PlayingStateView(gameBoardView)
+  }
+
+  setUp () {
+    this.view.gameBoardView.gameBoardView.onclick = event => {
+      onGameBoardClicked(event, this.model.gameBoardModel.puzzle.size, (i) => this.onTileClicked(i))
+    }
+    this.timeId = setInterval(() => {
+      this.model.time += 200
+      this.view.refreshTimer(this.model)
+    }, 200)
+  }
+
+  tearDown () {
+    this.view.gameBoardView.onclick = null
+    clearInterval(this.timeId)
+  }
+
+  onTileClicked (index) {
+    if (this.model.gameBoardModel.canChangeTile(index)) {
+      this.model.gameBoardModel.switchTile(index)
+      this.view.gameBoardView.updateTile(this.model.gameBoardModel, index)
+
+      if (this.model.gameBoardModel.isSolved()) {
+        transitionToState(new FinishedStateController(this.model.time))
       }
     }
   }
 }
 
-class IdleStateModel {
+class PlayingStateModel {
+  constructor (gameBoardModel) {
+    this.gameBoardModel = gameBoardModel
+    this.time = 0
+  }
+}
+
+class PlayingStateView {
+  constructor (gameBoardView) {
+    this.gameBoardView = gameBoardView
+    this.timeView = document.getElementById('time')
+  }
+
+  refreshTimer (model) {
+    this.timeView.innerText = formatTime(model.time)
+  }
+}
+
+class FinishedStateController {
+  constructor (time) {
+    if (gameData.bestTime === undefined || gameData.bestTime > time) {
+      gameData.bestTime = time
+    }
+    this.view = new FinishedStateView()
+  }
+
+  setUp () {
+    this.view.setUp()
+    this.view.updateBestTime(gameData.bestTime)
+  }
+}
+
+class FinishedStateView {
+  constructor () {
+    this.messageView = document.getElementById('message')
+    this.bestTimeView = document.getElementById('bestTime')
+  }
+
+  setUp () {
+    this.messageView.innerText = 'Well done!'
+  }
+
+  tearDown () {
+    this.messageView.innerText = ''
+  }
+
+  updateBestTime (bestTime) {
+    this.bestTimeView.innerText = formatTime(bestTime)
+  }
+}
+
+class GameBoardModel {
   constructor () {
     this.puzzle = createPuzzle(8)
     this.board = this.puzzle.initialState.slice()
@@ -54,7 +138,7 @@ class IdleStateModel {
   }
 }
 
-class IdleStateView {
+class GameBoardView {
   constructor () {
     this.gameBoardView = document.getElementById('gameBoard')
     this.gameTileViews = this.gameBoardView.getElementsByClassName('tile-click-area')
@@ -92,30 +176,6 @@ class IdleStateView {
   }
 }
 
-class FinishedStateController {
-  constructor () {
-    this.view = new FinishedStateView()
-  }
-
-  setUp () {
-    this.view.setUp()
-  }
-}
-
-class FinishedStateView {
-  constructor () {
-    this.messageView = document.getElementById('message')
-  }
-
-  setUp () {
-    this.messageView.innerText = 'Well done!'
-  }
-
-  tearDown () {
-    this.messageView.innerText = ''
-  }
-}
-
 function onGameBoardClicked (event, boardSize, onTileClicked) {
   const tileWidth = Math.floor(event.currentTarget.clientWidth / boardSize)
   const tileHeight = Math.floor(event.currentTarget.clientHeight / boardSize)
@@ -130,12 +190,31 @@ function onGameBoardClicked (event, boardSize, onTileClicked) {
   onTileClicked(tileIndex)
 }
 
-function transitionToState (state) {
-  if (window.state !== undefined && typeof window.state.tearDown === 'function') {
-    window.state.tearDown()
+function formatTime (timeMillis) {
+  const minutes = Math.floor(timeMillis / 1000 / 60)
+  let seconds = Math.floor(timeMillis / 1000 - (minutes * 60))
+
+  let timeString = ''
+
+  if (seconds < 10) {
+    seconds = '0' + seconds
   }
-  window.state = state
-  window.state.setUp()
+
+  if (minutes > 0) {
+    timeString = minutes + ':' + seconds
+  } else {
+    timeString = '0:' + seconds
+  }
+
+  return timeString
+}
+
+function transitionToState (previousState) {
+  if (state !== null && typeof state.tearDown === 'function') {
+    state.tearDown()
+  }
+  state = previousState
+  state.setUp()
 }
 
 document.addEventListener('DOMContentLoaded', function () {

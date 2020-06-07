@@ -5,11 +5,27 @@ body {
   margin: 0;
 }
 
+.card {
+  background: #333;
+  border-radius: 4px;
+  padding: 10px;
+  width: 100px;
+}
+
 .game-area {
   display: grid;
   grid-gap: 10px;
   margin: 100px auto;
   max-width: 512px;
+}
+
+.timers {
+  display: flex;
+  justify-content: space-between;
+}
+
+.timer {
+  font-size: 1.5em;
 }
 
 .message-area {
