@@ -5,15 +5,16 @@ body {
   margin: 0;
 }
 
-.flex {
-  display: flex;
-}
-
 .card {
   background: #333;
   border-radius: 4px;
   padding: 10px;
   width: 100px;
+}
+
+.controls {
+  display: flex;
+  justify-content: right;
 }
 
 .button {
@@ -22,6 +23,13 @@ body {
   cursor: pointer;
   margin-right: 10px;
   padding: 10px;
+  transition: all ease-in-out 200ms;
+
+  &.disabled {
+    background-color: #333;
+    cursor: default;
+    transition: all ease-in-out 200ms;
+  }
 }
 
 .game-area {

@@ -75,6 +75,9 @@ class PlayingStateController {
   tearDown () {
     this.view.tearDown()
     this.view.gameBoardView.gameBoardView.onclick = null
+    this.view.resetButton.onclick = null
+    this.view.newGameButton.onclick = null
+
     clearInterval(this.timeId)
   }
 
@@ -101,19 +104,18 @@ class PlayingStateView {
   constructor (gameBoardView) {
     this.gameBoardView = gameBoardView
     this.timeView = document.getElementById('time')
-    this.controlsView = document.getElementById('controls')
-    this.resetButton = createButton('Reset')
-    this.newGameButton = createButton('New game')
+    this.resetButton = document.getElementById('resetButton')
+    this.newGameButton = document.getElementById('newGameButton')
   }
 
   setUp () {
-    this.controlsView.appendChild(this.resetButton)
-    this.controlsView.appendChild(this.newGameButton)
+    this.resetButton.classList.remove('disabled')
+    this.newGameButton.classList.remove('disabled')
   }
 
   tearDown () {
-    this.controlsView.removeChild(this.resetButton)
-    this.controlsView.removeChild(this.newGameButton)
+    this.resetButton.classList.add('disabled')
+    this.newGameButton.classList.add('disabled')
   }
 
   refreshTimer (model) {
@@ -137,6 +139,7 @@ class FinishedStateController {
 
   tearDown () {
     this.view.tearDown()
+    this.view.newGameButton.onclick = null
   }
 }
 
@@ -145,20 +148,19 @@ class FinishedStateView {
     this.messageView = document.getElementById('message')
     this.bestTimeView = document.getElementById('bestTime')
     this.controlsView = document.getElementById('controls')
-
-    this.newGameButton = createButton('New game')
+    this.newGameButton = document.getElementById('newGameButton')
   }
 
   setUp () {
     this.messageView.innerText = 'Well done!'
     this.messageView.classList.add('show')
-    this.controlsView.appendChild(this.newGameButton)
+    this.newGameButton.classList.remove('disabled')
   }
 
   tearDown () {
     this.messageView.classList.remove('show')
     this.messageView.innerText = ''
-    this.controlsView.removeChild(this.newGameButton)
+    this.newGameButton.classList.add('disabled')
   }
 
   updateBestTime (bestTime) {
@@ -272,13 +274,6 @@ function transitionToState (nextState) {
   }
   state = nextState
   state.setUp()
-}
-
-function createButton (text) {
-  const button = document.createElement('div')
-  button.classList.add('button')
-  button.innerText = text
-  return button
 }
 
 document.addEventListener('DOMContentLoaded', function () {
