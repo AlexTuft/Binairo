@@ -72,7 +72,7 @@ class PlayingStateController {
 
   tearDown () {
     this.view.tearDown()
-    this.view.gameBoardView.onclick = null
+    this.view.gameBoardView.gameBoardView.onclick = null
     clearInterval(this.timeId)
   }
 
