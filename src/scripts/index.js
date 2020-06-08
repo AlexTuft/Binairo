@@ -17,6 +17,7 @@ class IdleStateController {
   }
 
   tearDown () {
+    this.view.tearDown()
     this.view.gameBoardView.gameBoardView.onclick = null
   }
 
@@ -33,11 +34,17 @@ class IdleStateView {
   constructor (gameBoardView) {
     this.gameBoardView = new GameBoardView()
     this.timeView = document.getElementById('time')
+    this.messageView = document.getElementById('message')
   }
 
   setUp (gameBoardModel) {
     this.gameBoardView.setUp(gameBoardModel)
     this.timeView.innerText = '0:00'
+    this.messageView.innerText = 'Click on tile to start'
+  }
+
+  tearDown () {
+    this.messageView.innerText = ''
   }
 }
 
