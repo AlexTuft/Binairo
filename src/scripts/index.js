@@ -6,26 +6,38 @@ var state = null
 class IdleStateController {
   constructor () {
     this.gameBoardModel = new GameBoardModel()
-    this.gameBoardView = new GameBoardView()
+    this.view = new IdleStateView()
   }
 
   setUp () {
-    this.gameBoardView.setUp(this.gameBoardModel)
-    this.gameBoardView.gameBoardView.onclick = event => {
+    this.view.setUp(this.gameBoardModel)
+    this.view.gameBoardView.gameBoardView.onclick = event => {
       onGameBoardClicked(event, this.gameBoardModel.puzzle.size, (i) => this.onTileClicked(i))
     }
   }
 
   tearDown () {
-    this.gameBoardView.gameBoardView.onclick = null
+    this.view.gameBoardView.gameBoardView.onclick = null
   }
 
   onTileClicked (index) {
     if (this.gameBoardModel.canChangeTile(index)) {
-      const playingState = new PlayingStateController(this.gameBoardModel, this.gameBoardView)
+      const playingState = new PlayingStateController(this.gameBoardModel, this.view.gameBoardView)
       transitionToState(playingState)
       playingState.onTileClicked(index)
     }
+  }
+}
+
+class IdleStateView {
+  constructor (gameBoardView) {
+    this.gameBoardView = new GameBoardView()
+    this.timeView = document.getElementById('time')
+  }
+
+  setUp (gameBoardModel) {
+    this.gameBoardView.setUp(gameBoardModel)
+    this.timeView.innerText = '0:00'
   }
 }
 
@@ -91,6 +103,11 @@ class FinishedStateController {
   setUp () {
     this.view.setUp()
     this.view.updateBestTime(gameData.bestTime)
+    this.view.newGameButton.onclick = () => transitionToState(new IdleStateController())
+  }
+
+  tearDown () {
+    this.view.tearDown()
   }
 }
 
@@ -98,14 +115,23 @@ class FinishedStateView {
   constructor () {
     this.messageView = document.getElementById('message')
     this.bestTimeView = document.getElementById('bestTime')
+    this.controlsView = document.getElementById('controls')
+
+    this.newGameButton = document.createElement('div')
+    this.newGameButton.classList.add('button')
+    this.newGameButton.innerText = 'New game'
   }
 
   setUp () {
     this.messageView.innerText = 'Well done!'
+    this.controlsView.appendChild(this.newGameButton)
   }
 
   tearDown () {
     this.messageView.innerText = ''
+    console.log(this.controlsView)
+    console.log(this.newGameButton)
+    this.controlsView.removeChild(this.newGameButton)
   }
 
   updateBestTime (bestTime) {
@@ -209,11 +235,11 @@ function formatTime (timeMillis) {
   return timeString
 }
 
-function transitionToState (previousState) {
+function transitionToState (nextState) {
   if (state !== null && typeof state.tearDown === 'function') {
     state.tearDown()
   }
-  state = previousState
+  state = nextState
   state.setUp()
 }
 
