@@ -55,9 +55,15 @@ class PlayingStateController {
   }
 
   setUp () {
+    this.view.setUp()
     this.view.gameBoardView.gameBoardView.onclick = event => {
       onGameBoardClicked(event, this.model.gameBoardModel.puzzle.size, (i) => this.onTileClicked(i))
     }
+    this.view.resetButton.onclick = () => {
+      this.model.gameBoardModel.reset()
+      this.view.gameBoardView.drawBoardToView(this.model.gameBoardModel)
+    }
+    this.view.newGameButton.onclick = () => transitionToState(new IdleStateController())
     this.timeId = setInterval(() => {
       this.model.time += 200
       this.view.refreshTimer(this.model)
@@ -65,6 +71,7 @@ class PlayingStateController {
   }
 
   tearDown () {
+    this.view.tearDown()
     this.view.gameBoardView.onclick = null
     clearInterval(this.timeId)
   }
@@ -92,6 +99,19 @@ class PlayingStateView {
   constructor (gameBoardView) {
     this.gameBoardView = gameBoardView
     this.timeView = document.getElementById('time')
+    this.controlsView = document.getElementById('controls')
+    this.resetButton = createButton('Reset')
+    this.newGameButton = createButton('New game')
+  }
+
+  setUp () {
+    this.controlsView.appendChild(this.resetButton)
+    this.controlsView.appendChild(this.newGameButton)
+  }
+
+  tearDown () {
+    this.controlsView.removeChild(this.resetButton)
+    this.controlsView.removeChild(this.newGameButton)
   }
 
   refreshTimer (model) {
@@ -124,9 +144,7 @@ class FinishedStateView {
     this.bestTimeView = document.getElementById('bestTime')
     this.controlsView = document.getElementById('controls')
 
-    this.newGameButton = document.createElement('div')
-    this.newGameButton.classList.add('button')
-    this.newGameButton.innerText = 'New game'
+    this.newGameButton = createButton('New game')
   }
 
   setUp () {
@@ -136,8 +154,6 @@ class FinishedStateView {
 
   tearDown () {
     this.messageView.innerText = ''
-    console.log(this.controlsView)
-    console.log(this.newGameButton)
     this.controlsView.removeChild(this.newGameButton)
   }
 
@@ -168,6 +184,14 @@ class GameBoardModel {
 
   isSolved () {
     return this.board.isEqualTo(this.puzzle.solution)
+  }
+
+  reset () {
+    for (let i = 0; i < this.board.length; i++) {
+      if (this.canChangeTile(i)) {
+        this.board[i] = null
+      }
+    }
   }
 }
 
@@ -244,6 +268,13 @@ function transitionToState (nextState) {
   }
   state = nextState
   state.setUp()
+}
+
+function createButton (text) {
+  const button = document.createElement('div')
+  button.classList.add('button')
+  button.innerText = text
+  return button
 }
 
 document.addEventListener('DOMContentLoaded', function () {
