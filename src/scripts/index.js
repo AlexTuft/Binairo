@@ -179,7 +179,6 @@ class GameBoardView {
 
   setUp (model) {
     this.drawBoardToView(model)
-    this.showToggleIndicators(model)
   }
 
   drawBoardToView (model) {
@@ -193,18 +192,15 @@ class GameBoardView {
     const tile = model.board[tileIndex]
 
     tileView.classList = ['tile-click-area'] // reset to default state
+
+    if (!model.canChangeTile(tileIndex)) {
+      tileView.classList.add('initial')
+    }
+
     if (tile === 0) {
       tileView.classList.add('z')
     } else if (tile === 1) {
       tileView.classList.add('o')
-    }
-  }
-
-  showToggleIndicators (model) {
-    for (let i = 0; i < model.puzzle.size * model.puzzle.size; i++) {
-      if (model.puzzle.initialState[i] !== null) {
-        this.gameTileViews[i].classList.add('initial')
-      }
     }
   }
 }
