@@ -41,10 +41,12 @@ class IdleStateView {
     this.gameBoardView.setUp(gameBoardModel)
     this.timeView.innerText = '0:00'
     this.messageView.innerText = 'Click on tile to start'
+    this.messageView.classList.add('show')
   }
 
   tearDown () {
-    this.messageView.innerText = ''
+    this.messageView.classList.remove('show')
+    setTimeout(() => { this.messageView.innerText = '' }, 500)
   }
 }
 
@@ -149,10 +151,12 @@ class FinishedStateView {
 
   setUp () {
     this.messageView.innerText = 'Well done!'
+    this.messageView.classList.add('show')
     this.controlsView.appendChild(this.newGameButton)
   }
 
   tearDown () {
+    this.messageView.classList.remove('show')
     this.messageView.innerText = ''
     this.controlsView.removeChild(this.newGameButton)
   }

@@ -44,6 +44,16 @@ body {
   font-size: 1.5em;
   height: 3em;
   text-align: center;
+
+  .message {
+    opacity: 0;
+    transition: all ease-in-out 200ms;
+
+    &.show {
+      opacity: 1;
+      transition: all ease-in-out 200ms;
+    }
+  }
 }
 
 .game-board {
