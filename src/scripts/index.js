@@ -65,7 +65,6 @@ class PlayingStateController {
       this.model.gameBoardModel.reset()
       this.view.gameBoardView.drawBoardToView(this.model.gameBoardModel)
     }
-    this.view.newGameButton.onclick = () => transitionToState(new IdleStateController())
     this.timeId = setInterval(() => {
       this.model.time += 200
       this.view.refreshTimer(this.model)
@@ -76,7 +75,6 @@ class PlayingStateController {
     this.view.tearDown()
     this.view.gameBoardView.gameBoardView.onclick = null
     this.view.resetButton.onclick = null
-    this.view.newGameButton.onclick = null
 
     clearInterval(this.timeId)
   }
@@ -105,17 +103,14 @@ class PlayingStateView {
     this.gameBoardView = gameBoardView
     this.timeView = document.getElementById('time')
     this.resetButton = document.getElementById('resetButton')
-    this.newGameButton = document.getElementById('newGameButton')
   }
 
   setUp () {
     this.resetButton.classList.remove('disabled')
-    this.newGameButton.classList.remove('disabled')
   }
 
   tearDown () {
     this.resetButton.classList.add('disabled')
-    this.newGameButton.classList.add('disabled')
   }
 
   refreshTimer (model) {
@@ -134,12 +129,10 @@ class FinishedStateController {
   setUp () {
     this.view.setUp()
     this.view.updateBestTime(gameData.bestTime)
-    this.view.newGameButton.onclick = () => transitionToState(new IdleStateController())
   }
 
   tearDown () {
     this.view.tearDown()
-    this.view.newGameButton.onclick = null
   }
 }
 
@@ -148,19 +141,16 @@ class FinishedStateView {
     this.messageView = document.getElementById('message')
     this.bestTimeView = document.getElementById('bestTime')
     this.controlsView = document.getElementById('controls')
-    this.newGameButton = document.getElementById('newGameButton')
   }
 
   setUp () {
     this.messageView.innerText = 'Well done!'
     this.messageView.classList.add('show')
-    this.newGameButton.classList.remove('disabled')
   }
 
   tearDown () {
     this.messageView.classList.remove('show')
     this.messageView.innerText = ''
-    this.newGameButton.classList.add('disabled')
   }
 
   updateBestTime (bestTime) {
@@ -277,5 +267,7 @@ function transitionToState (nextState) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+  const newGameButton = document.getElementById('newGameButton')
+  newGameButton.onclick = () => transitionToState(new IdleStateController())
   transitionToState(new IdleStateController())
 })
