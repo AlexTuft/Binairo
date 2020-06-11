@@ -121,6 +121,7 @@ class FinishedStateController {
   constructor (time) {
     if (gameData.bestTime === undefined || gameData.bestTime > time) {
       gameData.bestTime = time
+      window.localStorage.bestTime = gameData.bestTime
     }
     this.view = new FinishedStateView()
   }
@@ -264,5 +265,12 @@ function transitionToState (nextState) {
 document.addEventListener('DOMContentLoaded', function () {
   const newGameButton = document.getElementById('newGameButton')
   newGameButton.onclick = () => transitionToState(new IdleStateController())
+
+  if (window.localStorage.bestTime !== undefined) {
+    gameData.bestTime = Number(window.localStorage.bestTime)
+    const bestTimeView = document.getElementById('bestTime')
+    bestTimeView.innerText = formatTime(gameData.bestTime)
+  }
+
   transitionToState(new IdleStateController())
 })
