@@ -46,7 +46,6 @@ class IdleStateView {
 
   tearDown () {
     this.messageView.classList.remove('show')
-    setTimeout(() => { this.messageView.innerText = '' }, 500)
   }
 }
 
