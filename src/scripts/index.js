@@ -4,8 +4,8 @@ var gameData = {}
 var state = null
 
 class IdleStateController {
-  constructor () {
-    this.gameBoardModel = new GameBoardModel()
+  constructor (puzzle) {
+    this.gameBoardModel = new GameBoardModel(puzzle)
     this.view = new IdleStateView()
   }
 
@@ -62,8 +62,7 @@ class PlayingStateController {
       onGameBoardClicked(event, this.model.gameBoardModel.puzzle.size, (i) => this.onTileClicked(i))
     }
     this.view.resetButton.onclick = () => {
-      this.model.gameBoardModel.reset()
-      this.view.gameBoardView.drawBoardToView(this.model.gameBoardModel)
+      transitionToState(new IdleStateController(this.model.gameBoardModel.puzzle))
     }
     this.timeId = setInterval(() => {
       this.model.time += 200
@@ -159,8 +158,12 @@ class FinishedStateView {
 }
 
 class GameBoardModel {
-  constructor () {
-    this.puzzle = createPuzzle(8)
+  constructor (puzzle) {
+    if (puzzle !== undefined) {
+      this.puzzle = puzzle
+    } else {
+      this.puzzle = createPuzzle(8)
+    }
     this.board = this.puzzle.initialState.slice()
   }
 
@@ -180,14 +183,6 @@ class GameBoardModel {
 
   isSolved () {
     return this.board.isEqualTo(this.puzzle.solution)
-  }
-
-  reset () {
-    for (let i = 0; i < this.board.length; i++) {
-      if (this.canChangeTile(i)) {
-        this.board[i] = null
-      }
-    }
   }
 }
 
