@@ -34,6 +34,11 @@ function copyHtml () {
     .pipe(gulp.dest(outputDir))
 }
 
+function copyImages () {
+  return gulp.src('src/*.{ico,png}')
+    .pipe(gulp.dest(outputDir))
+}
+
 function lintJs () {
   return gulp.src(scriptsPattern)
     .pipe(eslint())
@@ -80,10 +85,12 @@ function buildReleaseCss () {
 
 exports.build = gulp.series(clean, gulp.parallel(
   copyHtml,
+  copyImages,
   gulp.series(lintJs, buildJs),
   gulp.series(lintCss, buildReleaseCss)))
 
 exports.release = gulp.series(clean, gulp.parallel(
   copyHtml,
+  copyImages,
   gulp.series(lintJs, buildReleaseJs),
   gulp.series(lintCss, buildReleaseCss)))
