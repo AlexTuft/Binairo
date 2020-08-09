@@ -14,6 +14,11 @@ class IdleStateController {
     this.view.gameBoardView.gameBoardView.onclick = event => {
       onGameBoardClicked(event, this.gameBoardModel.puzzle.size, (i) => this.onTileClicked(i))
     }
+    this.view.swapColorsButton.onclick = () => {
+      this.gameBoardModel.puzzle.swapColors()
+      this.gameBoardModel = new GameBoardModel(this.gameBoardModel.puzzle)
+      this.view.gameBoardView.setUp(this.gameBoardModel)
+    }
   }
 
   tearDown () {
@@ -35,6 +40,7 @@ class IdleStateView {
     this.gameBoardView = new GameBoardView()
     this.timeView = document.getElementById('time')
     this.messageView = document.getElementById('message')
+    this.swapColorsButton = document.getElementById('swapColorsButton')
   }
 
   setUp (gameBoardModel) {
@@ -42,10 +48,12 @@ class IdleStateView {
     this.timeView.innerText = '0:00'
     this.messageView.innerText = 'Click on tile to start'
     this.messageView.classList.add('show')
+    this.swapColorsButton.classList.remove('disabled')
   }
 
   tearDown () {
     this.messageView.classList.remove('show')
+    this.swapColorsButton.classList.add('disabled')
   }
 }
 

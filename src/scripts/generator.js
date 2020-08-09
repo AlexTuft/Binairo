@@ -23,10 +23,26 @@ Array.prototype.isEqualTo = function (other) {
   return true
 }
 
+function swapColors () {
+  for (let i = 0; i < this.solution.length; i++) {
+    if (this.solution[i] === 0) {
+      this.solution[i] = 1
+    } else if (this.solution[i] === 1) {
+      this.solution[i] = 0
+    }
+
+    if (this.initialState[i] === 0) {
+      this.initialState[i] = 1
+    } else if (this.initialState[i] === 1) {
+      this.initialState[i] = 0
+    }
+  }
+}
+
 function createPuzzle (size) {
   const solution = generateValidPuzzle(size)
   const initialState = findValidInitialState(solution, size)
-  return { size, solution, initialState }
+  return { size, solution, initialState, swapColors }
 }
 
 function generateValidPuzzle (size) {
