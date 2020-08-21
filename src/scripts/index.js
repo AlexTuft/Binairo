@@ -24,6 +24,7 @@ class IdleStateController {
   tearDown () {
     this.view.tearDown()
     this.view.gameBoardView.gameBoardView.onclick = null
+    this.view.swapColorsButton.onclick = null
   }
 
   onTileClicked (index) {
