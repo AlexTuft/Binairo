@@ -62,6 +62,7 @@ class PlayingStateController {
   constructor (gameBoardModel, gameBoardView) {
     this.model = new PlayingStateModel(gameBoardModel)
     this.view = new PlayingStateView(gameBoardView)
+    this.moveHistory = new MoveHistory(this.model.gameBoardModel, this.view.gameBoardView)
   }
 
   setUp () {
@@ -72,6 +73,7 @@ class PlayingStateController {
     this.view.resetButton.onclick = () => {
       transitionToState(new IdleStateController(this.model.gameBoardModel.puzzle))
     }
+    this.view.undoMoveButton.onclick = () => this.moveHistory.undoLastMove()
     this.timeId = setInterval(() => {
       this.model.time += 200
       this.view.refreshTimer(this.model)
@@ -82,18 +84,41 @@ class PlayingStateController {
     this.view.tearDown()
     this.view.gameBoardView.gameBoardView.onclick = null
     this.view.resetButton.onclick = null
-
+    this.view.undoMoveButton.onclick = null
     clearInterval(this.timeId)
   }
 
   onTileClicked (index) {
     if (this.model.gameBoardModel.canChangeTile(index)) {
+      const beforeMoveState = this.model.gameBoardModel.board[index]
+      this.moveHistory.recordMove(index, beforeMoveState)
+
       this.model.gameBoardModel.switchTile(index)
       this.view.gameBoardView.updateTile(this.model.gameBoardModel, index)
 
       if (this.model.gameBoardModel.isSolved()) {
         transitionToState(new FinishedStateController(this.model.time))
       }
+    }
+  }
+}
+
+class MoveHistory {
+  constructor (gameBoardModel, gameBoardView) {
+    this.moveHistory = []
+    this.gameBoardModel = gameBoardModel
+    this.gameBoardView = gameBoardView
+  }
+
+  recordMove (tileIndex, beforeMoveState) {
+    this.moveHistory.push({ tileIndex, beforeMoveState })
+  }
+
+  undoLastMove () {
+    if (this.moveHistory.length > 0) {
+      const lastMove = this.moveHistory.pop()
+      this.gameBoardModel.board[lastMove.tileIndex] = lastMove.beforeMoveState
+      this.gameBoardView.updateTile(this.gameBoardModel, lastMove.tileIndex)
     }
   }
 }
@@ -110,14 +135,17 @@ class PlayingStateView {
     this.gameBoardView = gameBoardView
     this.timeView = document.getElementById('time')
     this.resetButton = document.getElementById('resetButton')
+    this.undoMoveButton = document.getElementById('undoMoveButton')
   }
 
   setUp () {
     this.resetButton.classList.remove('disabled')
+    this.undoMoveButton.classList.remove('disabled')
   }
 
   tearDown () {
     this.resetButton.classList.add('disabled')
+    this.undoMoveButton.classList.add('disabled')
   }
 
   refreshTimer (model) {
